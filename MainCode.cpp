@@ -1,0 +1,268 @@
+#define ledA1 4 //G
+#define ledA2 2 //Y
+#define ledA3 15 //R
+
+#define ledB1 13
+#define ledB2 12
+#define ledB3 14
+
+#define ledC1 27
+#define ledC2 26
+#define ledC3 25
+
+#define ledD1 33
+#define ledD2 32
+#define ledD3 22
+
+#define IRA1 34
+#define IRA2 35
+
+#define IRB1 21
+#define IRB2 19
+
+#define IRC1 18
+#define IRC2 5
+
+#define IRD1 17
+#define IRD2 16
+
+// defining variables
+int a1, a2, b1, b2, c1, c2, d1, d2;
+int adc = 1;
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(ledA1, OUTPUT);
+  pinMode(ledA2, OUTPUT);
+  pinMode(ledA3, OUTPUT);
+
+  pinMode(ledB1, OUTPUT);
+  pinMode(ledB2, OUTPUT);
+  pinMode(ledB3, OUTPUT);
+
+  pinMode(ledC1, OUTPUT);
+  pinMode(ledC2, OUTPUT);
+  pinMode(ledC3, OUTPUT);
+
+  pinMode(ledD1, OUTPUT);
+  pinMode(ledD2, OUTPUT);
+  pinMode(ledD3, OUTPUT);
+
+  pinMode(IRA1, INPUT);
+  pinMode(IRA2, INPUT);
+
+  pinMode(IRB1, INPUT);
+  pinMode(IRB2, INPUT);
+
+  pinMode(IRC1, INPUT);
+  pinMode(IRC2, INPUT);
+
+  pinMode(IRD1, INPUT);
+  pinMode(IRD2, INPUT);
+}
+
+void loop() {
+  readSensor();
+
+  if (b1 == 1 && b2 == 1)
+  {
+    roadBopen();
+  }
+  else if (d1 == 1 && d2 == 1 && (b1 == 0 || b2 == 0))
+  {
+    roadDopen();
+    if (b1 == 1 && b2 == 1)
+    {
+      roadBopen();
+    }
+  }
+  else if (a1 == 1 && a2 == 1 && ((d2 == 0 || b2 == 0) || (d1 == 0 || b1 == 0)))
+  {
+    roadAopen();
+    if (b1 == 1 && b2 == 1)
+    {
+      roadBopen();
+    }
+    else if (d1 == 1 && d2 == 1 && (b1 == 0 || b2 == 0))
+    {
+      roadDopen();
+    }
+  }
+  else if (c1 == 1 && c2 == 1 && ((d2 == 0 || b2 == 0 || a2 == 0) || (d1 == 0 || b1 == 0 || a1 == 0)))
+  {
+    roadCopen();
+    if (b1 == 1 && b2 == 1)
+    {
+      roadBopen();
+    }
+    else if (d1 == 1 && d2 == 1 && (b1 == 0 || b2 == 0))
+    {
+      roadDopen();
+    }
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  else if ((b1 == 1 && b2 == 0) && (c1 == 1 || d1 == 1 || b1 == 1) && (c2 == 1 && d2 == 1 && b2 == 1))
+  {
+    roadBopen();
+  }
+  else if ((d1 == 1 && d2 == 0) && (c1 == 1 || a1 == 1) && (b1 == 0 && b2 == 0) && (c2 == 0 && a2 == 0))
+  {
+    roadDopen();
+  }
+  else if ((a1 == 1 && a2 == 0) && (c1 == 1 && c2 == 0) && (d1 == 0 && d2 == 0) && (b1 == 0 && b2 == 0))
+  {
+    roadAopen();
+  }
+  else if ((c1 == 1 && c2 == 0) && (b1 == 0 || b2 == 0) && (d1 == 0 || d2 == 0) && (a1 == 0 || a2 == 0))
+  {
+    roadCopen();
+  }
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  else if ((b1 == 1 && b2 == 0) && (c1 == 0 || c2 == 0) && (d1 == 0 || d2 == 0) && (a1 == 0 || a2 == 0))
+  {
+    roadBopen();
+  }
+  else if ((d1 == 1 && d2 == 0) && (c1 == 0 || c2 == 0) && (b1 == 0 || b2 == 0) && (a1 == 0 || a2 == 0))
+  {
+    roadDopen();
+  }
+
+  else if ((a1 == 1 && a2 == 0) && (c1 == 0 || c2 == 0) && (d1 == 0 || d2 == 0) && (b1 == 0 || b2 == 0))
+  {
+    roadAopen();
+  }
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////
+  else if (a1 == 0 && b1 == 0 && c1 == 0 && d1 == 0)
+  {
+    roadBopen();
+    if (a1 == 0 && b1 == 0 && c1 == 0 && d1 == 0)
+    {
+      roadDopen();
+    }
+    if (a1 == 0 && b1 == 0 && c1 == 0 && d1 == 0)
+    {
+      roadAopen();
+    }
+    if (a1 == 0 && b1 == 0 && c1 == 0 && d1 == 0)
+    {
+      roadCopen();
+    }
+  }
+}
+
+void readSensor()
+{
+  a1 = digitalRead(IRA1);
+  a2 = digitalRead(IRA2);
+  b1 = digitalRead(IRB1);
+  b2 = digitalRead(IRB2);
+  c1 = digitalRead(IRC1);
+  c2 = digitalRead(IRC2);
+  d1 = digitalRead(IRD1);
+  d2 = digitalRead(IRD2);
+
+  if (a1 < adc) a1 = 1; else a1 = 0; if (a2 < adc) a2 = 1; else a2 = 0;
+if (b1 < adc) b1 = 1; else b1 = 0; if (b2 < adc) b2 = 1; else b2 = 0;
+if (c1 < adc) c1 = 1; else c1 = 0; if (c2 < adc) c2 = 1; else c2 = 0;
+if (d1 < adc) d1 = 1; else d1 = 0; if (d2 < adc) d2 = 1; else d2 = 0;
+
+Serial.print(a1);
+Serial.print("\t");
+Serial.print(a2);
+Serial.print("\t");
+Serial.print(b1);
+Serial.print("\t");
+Serial.print(b2);
+Serial.print("\t");
+Serial.print(c1);
+Serial.print("\t");
+Serial.print(c2);
+Serial.print("\t");
+Serial.print(d1);
+Serial.print("\t");
+Serial.print(d2);
+Serial.println("\t");
+
+}
+
+void roadAopen()
+{
+  digitalWrite(ledA3, LOW);
+
+  digitalWrite(ledB3, HIGH);
+  digitalWrite(ledC3, HIGH);
+  digitalWrite(ledD3, HIGH);
+
+  digitalWrite(ledA2, HIGH);
+  delay(1000);
+  digitalWrite(ledA2, LOW);
+  digitalWrite(ledA1, HIGH);
+  delay(3000);
+  digitalWrite(ledA1, LOW);
+  digitalWrite(ledA2, HIGH);
+  delay(1000);
+  digitalWrite(ledA2, LOW);
+  readSensor();
+}
+
+void roadBopen()
+{
+  digitalWrite(ledB3, LOW);
+
+  digitalWrite(ledA3, HIGH);
+  digitalWrite(ledC3, HIGH);
+  digitalWrite(ledD3, HIGH);
+
+  digitalWrite(ledB2, HIGH);
+  delay(1000);
+  digitalWrite(ledB2, LOW);
+  digitalWrite(ledB1, HIGH);
+  delay(3000);
+  digitalWrite(ledB1, LOW);
+  digitalWrite(ledB2, HIGH);
+  delay(1000);
+  digitalWrite(ledB2, LOW);
+  readSensor();
+}
+
+void roadCopen()
+{
+  digitalWrite(ledC3, LOW);
+
+  digitalWrite(ledA3, HIGH);
+  digitalWrite(ledB3, HIGH);
+  digitalWrite(ledD3, HIGH);
+
+  digitalWrite(ledC2, HIGH);
+  delay(1000);
+  digitalWrite(ledC2, LOW);
+  digitalWrite(ledC1, HIGH);
+  delay(3000);
+  digitalWrite(ledC1, LOW);
+  digitalWrite(ledC2, HIGH);
+  delay(1000);
+  digitalWrite(ledC2, LOW);
+  readSensor();
+}
+
+void roadDopen()
+{
+  digitalWrite(ledD3, LOW);
+
+  digitalWrite(ledA3, HIGH);
+  digitalWrite(ledB3, HIGH);
+  digitalWrite(ledC3, HIGH);
+
+  digitalWrite(ledD2, HIGH);
+  delay(1000);
+  digitalWrite(ledD2, LOW);
+  digitalWrite(ledD1, HIGH);
+  delay(3000);
+  digitalWrite(ledD1, LOW);
+  digitalWrite(ledD2, HIGH);
+  delay(1000);
+  digitalWrite(ledD2, LOW);
+  readSensor();
+}
